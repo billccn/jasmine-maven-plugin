@@ -1,18 +1,19 @@
 (function() {
   var jasmineMavenPlugin = window.jasmineMavenPlugin = window.jasmineMavenPlugin || {};
-  var reporter,reportedItems,specCount,failureCount;
+  var reporter,reportedItems,specCount,failureCount,pendingCount;
 
   jasmineMavenPlugin.printReport = function(r, config) {
     config = config || {};
-    reporter = r, reportedItems=[], specCount=0, failureCount=0;
+    reporter = r, reportedItems=[], specCount=0, failureCount=0, pendingCount=0;
     var result;
     if (config.format === 'progress') {
-      result = printProgressFormat(reporter);
+      result = printProgressFormat(jasmine.getEnv().topSuite().children);
     } else {
-      result = buildDocumentationFormatReport(reporter.suites(),0);
+      result = buildDocumentationFormatReport(jasmine.getEnv().topSuite().children,0);
     }
+
     result += describeFailureSentences(reporter);
-    result += "\n\nResults: "+specCount+" specs, "+failureCount+" failures\n";
+       result += "\n\nResults: "+specCount+" specs, "+failureCount+" failures, "+pendingCount+" pending\n";
     return result;
   };
 
@@ -24,7 +25,7 @@
     return indentStr;
   };
 
-  var describeMessages = function(messages,indentLevel) {
+  var describeFailureMessages = function(messages,indentLevel) {
     var message = ' <<< FAILURE!';
     if(messages) {
       for(var i=0;i<messages.length;i++) {
@@ -36,10 +37,10 @@
     return message;
   };
 
-  var printProgressFormat = function(reporter) {
+  var printProgressFormat = function(items) {
     var linesPerRow = 80;
     var result = '\n';
-    report = buildProgressFormatReport(reporter.suites());
+    report = buildProgressFormatReport(items);
     if(report.length > linesPerRow) {
       for (var i=0; i < report.length; i+=linesPerRow) {
         result += report.substring(i,i+linesPerRow) + '\n';
@@ -52,46 +53,63 @@
 
   var buildProgressFormatReport = function(items) {
     var output = '';
-    for (var i=0; i < items.length; i++) {
-      var item = items[i];
-      if(item.type == 'spec') {
-        specCount++;
-        var result = resultForSpec(item);
-        if(result.result !== 'passed') {
-          failureCount++;
-          output += 'F';
-        } else {
-          output += '.';
+    if (items) {
+      for (var i=0; i < items.length; i++) {
+        var item = items[i];
+        if(item instanceof jasmine.Spec) {
+          specCount++;
+          var result = resultForSpec(item);
+          if (result.status == 'failed') {
+            failureCount++;
+            output += 'F';
+          } else if (result.status == 'pending') {
+            pendingCount++;
+          } else {
+            output += '.';
+          }
         }
+        reportedItems.push(item);
+        output += buildProgressFormatReport(item.children);
       }
-      reportedItems.push(item);
-      output += buildProgressFormatReport(item.children);
     }
     return output;
   };
 
   var buildDocumentationFormatReport = function(items,indentLevel) {
     var line = '';
-     for(var i=0;i<items.length;i++){
-      var item = items[i];
-      if(!inArray(reportedItems,item)) {
-        line += (i > 0 && indentLevel === 0 ? '\n' : '')+"\n"+indent(indentLevel)+item.name;
+    if (items) {
+      for(var i=0;i<items.length;i++){
+        var item = items[i];
+        if(!inArray(reportedItems,item)) {
+          line += (i > 0 && indentLevel === 0 ? '\n' : '')+"\n"+indent(indentLevel)+item.description;
 
-        if(item.type == 'spec') {
-          specCount++;
-          var result = resultForSpec(item);
-          if(result.result !== 'passed') {
-            failureCount++;
-            line += describeMessages(result.messages,indentLevel+1);
+          if(item instanceof jasmine.Spec) {
+            specCount++;
+            var result = resultForSpec(item, reporter.specs());
+            if(result.status == 'failed') {
+              failureCount++;
+              line += describeFailureMessages(item.failedExpectations,indentLevel+1);
+            } else if (result.status == 'pending') {
+              pendingCount++;
+              line += " <<< PENDING";
+            }
           }
-        }
 
-        reportedItems.push(item);
-        line += buildDocumentationFormatReport(item.children,indentLevel+1);
+          reportedItems.push(item);
+          line += buildDocumentationFormatReport(item.children,indentLevel+1);
+        }
       }
     }
     return line;
   };
+
+  function printObject(o) {
+    var out = '';
+    for (var p in o) {
+      out += p + ': ' + o[p] + '\n';
+    }
+    return out;
+  }
 
   var buildFailureSentences = function(components,failures,sentence) {
     for (var i=0; i < components.length; i++) {
@@ -102,7 +120,7 @@
         buildFailureSentences(children,failures,desc+component.name);
       } else {
         var result = resultForSpec(component);
-        if(result.result !== 'passed') {
+        if(result.result == 'failed') {
           failures.push(desc + 'it ' + component.name + describeMessages(result.messages,2));
         }
       }
@@ -110,7 +128,14 @@
   };
 
   var resultForSpec = function(spec){
-    return reporter.results()[spec.id] || {};
+    var specResults = reporter.specs();
+    for (var i in specResults) {
+      var specResult = specResults[i];
+      if (spec.id == specResult.id) {
+        return specResult;
+      }
+    }
+    return {status: "NOT FOUND"};
   };
 
   var describeFailureSentences = function() {
