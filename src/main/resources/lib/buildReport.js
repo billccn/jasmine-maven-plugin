@@ -88,7 +88,7 @@
             var result = resultForSpec(item, reporter.specs());
             if(result.status == 'failed') {
               failureCount++;
-              line += describeFailureMessages(item.failedExpectations,indentLevel+1);
+              line += describeFailureMessages(item.result.failedExpectations,indentLevel+1);
             } else if (result.status == 'pending') {
               pendingCount++;
               line += " <<< PENDING";

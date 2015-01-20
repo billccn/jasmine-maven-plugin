@@ -25,7 +25,7 @@ var junitXmlReporter;
       writer.beginNode('testsuite');
       writer.attrib('errors','0');
       writer.attrib('name','jasmine.specs');
-      writer.attrib('tests',"X" + results.tests);
+      writer.attrib('tests',results.tests);
       writer.attrib('failures',results.failures);
       writer.attrib('skipped',results.skipped);
       writer.attrib('hostname','localhost');
@@ -88,7 +88,7 @@ var junitXmlReporter;
       var count=0;
       var fails=0;
       var skipped=0;
-      var res1 = "";
+      var last;
       for(var key in results) {
         count++;
         if(results[key].status == 'failed') {
@@ -97,10 +97,10 @@ var junitXmlReporter;
         if(results[key].status == 'pending') {
           skipped++;
         }
-        res1 = results[key].status;
+        last = key;
       }
       return {
-        tests: JSON.stringify(results.toString()),
+        tests: count.toString(),
         failures: fails.toString(),
         skipped: skipped.toString()
       };
