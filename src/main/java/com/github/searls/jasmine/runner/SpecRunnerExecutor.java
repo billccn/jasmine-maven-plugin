@@ -22,7 +22,7 @@ public class SpecRunnerExecutor {
 	public static final String BUILD_REPORT_JS = "/lib/buildReport.js";
 	public static final String CREATE_JUNIT_XML = "/lib/createJunitXml.js";
 
-	private final IOUtilsWrapper ioUtilsWrapper = new IOUtilsWrapper();
+	private IOUtilsWrapper ioUtilsWrapper = new IOUtilsWrapper();
 
 	public JasmineResult execute(URL runnerUrl, File junitXmlReport, WebDriver driver, int timeout, boolean debug, Log log, String format) {
 		try {

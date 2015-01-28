@@ -32,7 +32,7 @@ public class ServerMojo extends AbstractJasmineMojo {
           "\n\n"+
           "Just leave this process running as you test-drive your code, refreshing your browser window to re-run your specs. You can kill the server with Ctrl-C when you're done.";
 
-  private final RelativizesFilePaths relativizesFilePaths;
+  private RelativizesFilePaths relativizesFilePaths;
 
   public ServerMojo() {
     this.relativizesFilePaths = new RelativizesFilePaths();

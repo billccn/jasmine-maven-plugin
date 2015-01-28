@@ -3,9 +3,9 @@ package com.github.searls.jasmine.runner;
 import static com.github.searls.jasmine.Matchers.containsScriptTagWith;
 import static com.github.searls.jasmine.Matchers.containsScriptTagWithSource;
 import static com.github.searls.jasmine.Matchers.containsStyleTagWith;
-import static com.github.searls.jasmine.runner.SpecRunnerHtmlGenerator.JASMINE_CSS;
-import static com.github.searls.jasmine.runner.SpecRunnerHtmlGenerator.JASMINE_HTML_JS;
-import static com.github.searls.jasmine.runner.SpecRunnerHtmlGenerator.JASMINE_JS;
+import static com.github.searls.jasmine.runner.DefaultSpecRunnerHtmlGenerator.JASMINE_CSS;
+import static com.github.searls.jasmine.runner.DefaultSpecRunnerHtmlGenerator.JASMINE_HTML_JS;
+import static com.github.searls.jasmine.runner.DefaultSpecRunnerHtmlGenerator.JASMINE_JS;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -64,25 +64,18 @@ public class SpecRunnerHtmlGeneratorPseudoIntegrationTest {
   }
 
   @Test
-  public void shouldBuildBasicHtmlWhenNoDependenciesAreProvided() {
+  public void basicTests() throws Exception {
     String html = this.subject.generate();
 
+    // shouldBuildBasicHtmlWhenNoDependenciesAreProvided:
     assertThat(html, containsString("<html>"));
     assertThat(html, containsString("</html>"));
-  }
 
-  @Test
-  public void shouldPutInADocTypeWhenNoDependenciesAreProvided() throws Exception {
-    String html = this.subject.generate();
-
+    // shouldPutInADocTypeWhenNoDependenciesAreProvided:
     assertThat(html, containsString(HTML5_DOCTYPE));
     assertThat(this.getPage(html).getDoctype().getName(), is("html"));
-  }
 
-  @Test
-  public void shouldAssignSpecifiedSourceEncoding() throws Exception {
-    String html = this.subject.generate();
-
+    // shouldAssignSpecifiedSourceEncoding
     HtmlMeta contentType = this.getPage(html).getFirstByXPath("//meta");
     assertThat(contentType.getContentAttribute(), is("text/html; charset=" + SOURCE_ENCODING));
   }
@@ -99,7 +92,7 @@ public class SpecRunnerHtmlGeneratorPseudoIntegrationTest {
 
   @Test
   public void populatesJasmineSource() throws Exception {
-    String expected = "javascript()";
+    String expected = "javascript(1)";
     when(this.generatorConfiguration.IOtoString(eq(JASMINE_JS))).thenReturn(expected);
 
     String html = this.subject.generate();
@@ -109,7 +102,7 @@ public class SpecRunnerHtmlGeneratorPseudoIntegrationTest {
 
   @Test
   public void populatesJasmineHtmlSource() throws Exception {
-    String expected = "javascript()";
+    String expected = "javascript(2)";
     when(this.generatorConfiguration.IOtoString(eq(JASMINE_HTML_JS))).thenReturn(expected);
 
 

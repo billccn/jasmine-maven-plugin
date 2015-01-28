@@ -17,9 +17,9 @@ import com.github.searls.jasmine.runner.CreatesRunner;
 
 public class JasmineResourceHandler extends ResourceHandler {
 
-  private final DetectsCoffee detectsCoffee = new DetectsCoffee();
-  private final HandlesRequestsForCoffee handlesRequestsForCoffee;
-  private final CreatesRunner createsRunner;
+  private DetectsCoffee detectsCoffee = new DetectsCoffee();
+  private HandlesRequestsForCoffee handlesRequestsForCoffee;
+  private CreatesRunner createsRunner;
 
   public JasmineResourceHandler(CreatesRunner createsRunner, JasmineConfiguration configuration) {
     this.createsRunner = createsRunner;

@@ -10,9 +10,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 
 import static com.github.searls.jasmine.thirdpartylibs.ProjectClassLoaderHelper.projectClassLoaderOf;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.*;
@@ -33,17 +35,17 @@ public class WebJarResourceHandlerTest {
   private WebJarResourceHandler subject;
 
   @Before
-  public void before() {
+  public void before() throws Exception {
     String jquery = "src/test/resources/webjars/jquery-1.10.2.jar";
     subject = new WebJarResourceHandler(projectClassLoaderOf(jquery));
+
+    // given
+    when(baseRequest.isHandled()).thenReturn(false);
+    when(response.getWriter()).thenReturn(writer);
   }
 
   @Test
   public void whenTargetContainsFileFromWebJarRespondWithResourceContent() throws Exception {
-    // given
-    when(baseRequest.isHandled()).thenReturn(false);
-    when(response.getWriter()).thenReturn(writer);
-
     // when
     subject.handle("/jquery.js", baseRequest, request, response);
 
@@ -54,15 +56,21 @@ public class WebJarResourceHandlerTest {
 
   @Test
   public void whenResourceIsMissingThenDoNotProcess() throws Exception {
-    // given
-    when(baseRequest.isHandled()).thenReturn(false);
-    when(response.getWriter()).thenReturn(writer);
-
     // when
     subject.handle("/notExistingResource", baseRequest, request, response);
 
     // then
     verify(writer, never()).write(anyString());
     verify(baseRequest, never()).setHandled(true);
+  }
+
+  @Test
+  public void magicPathReturnsSetupScript() throws Exception {
+    // when
+    subject.handle(WebJarResourceHandler.SETUP_SCRIPT_PATH, baseRequest, request, response);
+
+    // then
+    verify(writer).write(contains("var webjars ="));
+    verify(baseRequest).setHandled(true);
   }
 }

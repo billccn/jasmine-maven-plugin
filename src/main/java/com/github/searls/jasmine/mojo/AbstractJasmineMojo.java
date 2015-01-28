@@ -391,7 +391,7 @@ public abstract class AbstractJasmineMojo extends AbstractMojo implements Jasmin
 	 * <p>Determines the strategy to use when generation the JasmineSpecRunner. This feature allows for custom
 	 * implementation of the runner generator. Typically this is used when using different script runners.</p>
 	 *
-	 * <p>Some valid examples: DEFAULT, REQUIRE_JS</p>
+	 * <p>Some valid examples: DEFAULT, REQUIRE_JS, REQUIRE_JS_WEBJARS</p>
          *
 	 * @since 1.1.0
 	 */

@@ -13,6 +13,11 @@ import com.github.searls.jasmine.io.scripts.ScriptResolverException;
 
 public class DefaultSpecRunnerHtmlGenerator extends AbstractSpecRunnerHtmlGenerator implements SpecRunnerHtmlGenerator {
 
+  // TODO: replace the hard-coded version with a locator call
+  static final String JASMINE_JS = "/META-INF/resources/webjars/jasmine/2.1.3/jasmine.js";
+  static final String JASMINE_HTML_JS = "/META-INF/resources/webjars/jasmine/2.1.3/jasmine-html.js";
+  static final String JASMINE_CSS = "/META-INF/resources/webjars/jasmine/2.1.3/jasmine.css";
+
   protected DefaultSpecRunnerHtmlGenerator(HtmlGeneratorConfiguration configuration) {
     super(configuration);
   }

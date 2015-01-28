@@ -26,7 +26,7 @@ public abstract class AbstractThirdPartyLibsResourceHandler extends ResourceHand
 
     if (resource != null) {
       String javascript = IOUtils.toString(resource, "UTF-8");
-      setHeaders(response, javascript);
+      setHeaders(response, javascript, resourcePath);
       writeResponse(response, javascript);
       baseRequest.setHandled(true);
     }
@@ -38,9 +38,9 @@ public abstract class AbstractThirdPartyLibsResourceHandler extends ResourceHand
     return url.replaceFirst("^/", "");
   }
 
-  private void setHeaders(HttpServletResponse response, String javascript) {
+  private void setHeaders(HttpServletResponse response, String javascript, String path) {
     response.setCharacterEncoding("UTF-8");
-    response.setContentType("text/javascript");
+    response.setContentType(path.endsWith(".js") ? "text/javascript" : (path.endsWith(".css") ? "text/css" : "text/plain"));
     response.addDateHeader("EXPIRES", 0L);
     response.setDateHeader(HttpHeaders.LAST_MODIFIED, new Date().getTime());
     try {
